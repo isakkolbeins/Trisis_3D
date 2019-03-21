@@ -48,13 +48,13 @@ var grid = Array.from(Array(20), _ =>
 ); // [20[6[6]]] -- [y[z[x]]]
 
 var colors = [
-  vec4(0.8, 0.0, 0.0, 0.001),
-  vec4(0.8, 0.0, 0.0, 0.001),
-  vec4(0.0, 0.8, 0.0, 0.001),
-  vec4(0.0, 0.0, 0.8, 0.001),
-  vec4(0.8, 0.0, 0.8, 0.001),
-  vec4(0.8, 0.8, 0.0, 0.001),
-  vec4(0.0, 0.8, 0.8, 0.001)
+  vec4(0.8, 0.0, 0.0, 0.5),
+  vec4(0.8, 0.0, 0.0, 0.5),
+  vec4(0.0, 0.8, 0.0, 0.5),
+  vec4(0.0, 0.0, 0.8, 0.5),
+  vec4(0.8, 0.0, 0.8, 0.5),
+  vec4(0.8, 0.8, 0.0, 0.5),
+  vec4(0.0, 0.8, 0.8, 0.5)
 ];
 
 window.onload = function init() {
@@ -94,10 +94,6 @@ window.onload = function init() {
   gl.uniformMatrix4fv(proLoc, false, flatten(proj));
 
   currTrisis = newTrisis();
-
-  grid[0][0][0] = 1;
-  grid[6][3][4] = 6;
-  grid[1][1][1] = 1;
 
   // Mouse handlers
   canvas.addEventListener('mousedown', function(e) {
@@ -167,39 +163,24 @@ window.onload = function init() {
   render();
 };
 
-function objCopy(obj) {
-  let target = {};
-  for (let prop in obj) {
-    if (obj.hasOwnProperty(prop)) {
-      target[prop] = obj[prop];
-    }
-  }
-  return target;
-}
-
-function jsonCopy(src) {
+function objClone(src) {
   return JSON.parse(JSON.stringify(src));
 }
 
 // prettier-ignore
 function sidemovement(t) {
-  if (keys[37]) { t = moveTrisis(t, 'x', -1); }     // Left arrow
-  if (keys[38]) { t = moveTrisis(t, 'z', -1); }     // Up arrow
-  if (keys[39]) { t = moveTrisis(t, 'x', 1); }      // Right arrow
-  if (keys[40]) { t = moveTrisis(t, 'z', 1); }      // Down arrow
+  if (keys[37]) { t = moveTrisis(t, 'x', -1); }     // Left arrow   - move -X direction
+  if (keys[38]) { t = moveTrisis(t, 'z', -1); }     // Up arrow     - move -Z direction
+  if (keys[39]) { t = moveTrisis(t, 'x', 1); }      // Right arrow  - move X direction
+  if (keys[40]) { t = moveTrisis(t, 'z', 1); }      // Down arrow   - move Z direction
   
-  
-  if (keys[65]) { t = rotateTrisis(t, 'x', 1); }    // A Key
-  if (keys[90]) { t = rotateTrisis(t, 'x', -1); }   // Z Key
-  // S Key
-  if (keys[83]) {
-  } // X Key
-  if (keys[88]) {
-  } // D Key
-  if (keys[68]) {
-  } // C Key
-  if (keys[67]) {
-  }
+  if (keys[65]) { t = rotateTrisis(t, ['y','z']); }     // A Key    - rotate over X - cw
+  if (keys[90]) { t = rotateTrisis(t, ['z','y']); }     // Z Key    - rotate over X - C.cw
+  if (keys[83]) {t = rotateTrisis(t, ['x','z']);}       // S Key    - rotate over Y - cw
+  if (keys[88]) {t = rotateTrisis(t, ['z','x']);}       // X Key    - rotate over Y - C.cw
+  if (keys[68]) { t = rotateTrisis(t, ['x','y']); }     // D Key    - rotate over Z - cw
+  if (keys[67]) { t = rotateTrisis(t, ['y','x']); }     // C Key    - rotate over Z - C.cw
+
   return t;
 }
 
@@ -244,7 +225,50 @@ function moveTrisis(t, axis, num) {
   return t;
 }
 
-function rotateTrisis(t, axis, dir) {}
+// prettier-ignore
+function rotateTrisis(t, extra) {
+  var C = t.center;
+  var O = t.other;
+  var T = t.third;
+
+  if (C[extra[0]] !== O[extra[0]] || C[extra[1]] !== O[extra[1]]){
+      if(C[extra[0]] > O[extra[0]]) {
+        O[extra[0]] += 1;
+        O[extra[1]] += 1;
+      } 
+      else if(C[extra[0]] < O[extra[0]]) {
+        O[extra[0]] -= 1;
+        O[extra[1]] -= 1;
+      } 
+      else if(C[extra[1]] > O[extra[1]]) {
+        O[extra[0]] -= 1;
+        O[extra[1]] += 1;
+      } 
+      else if(C[extra[1]] < O[extra[1]]) {
+        O[extra[0]] += 1;
+        O[extra[1]] -= 1;
+      } 
+  }
+  if (C[extra[0]] !== T[extra[0]] || C[extra[1]] !== T[extra[1]]){
+      if(C[extra[0]] > T[extra[0]]) {
+        T[extra[0]] += 1;
+        T[extra[1]] += 1;
+      } 
+      else if(C[extra[0]] < T[extra[0]]) {
+        T[extra[0]] -= 1;
+        T[extra[1]] -= 1;
+      } 
+      else if(C[extra[1]] > T[extra[1]]) {
+        T[extra[0]] -= 1;
+        T[extra[1]] += 1;
+      } 
+      else if(C[extra[1]] < T[extra[1]]) {
+        T[extra[0]] += 1;
+        T[extra[1]] -= 1;
+      } 
+  }
+  return t;
+}
 
 //prettier-ignore
 function sidesCollide(t) {
@@ -254,7 +278,6 @@ function sidesCollide(t) {
     return true;
   }
   if (t.center.y < 20 && t.other.y < 20 && t.third.y < 20) {
-      console.log(t)
     if (grid[t.center.y][t.center.x][t.center.z] !== 0) { return true; }
     if (grid[t.other.y][t.other.x][t.other.z] !== 0) { return true;}
     if (grid[t.third.y][t.third.x][t.third.z] !== 0) { return true;}
@@ -274,14 +297,14 @@ function downCollide(t) {
 }
 
 function updateTrisis(curr) {
-  var next = jsonCopy(curr);
+  var next = objClone(curr);
 
   if (updateTimer) {
     next = sidemovement(next);
     updateTimer = false;
   }
   if (sidesCollide(next)) {
-    next = jsonCopy(curr);
+    next = objClone(curr);
   }
 
   next = downmovement(next);
@@ -301,20 +324,20 @@ function updateTrisis(curr) {
   return next;
 }
 
-function drawBox(mv, pos, color) {
+function drawFrame(mv, pos, color) {
   mv = mult(mv, translate(pos.x * 2 - 5, pos.y * 2 - 19, pos.z * 2 - 5));
-
-  gl.uniform4fv(colorLoc, vec4(1.0, 1.0, 1.0, 1.0));
+  // white frame arond the block
+  gl.uniform4fv(colorLoc, vec4(0.5, 0.5, 0.5, 1.0));
   gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
   gl.drawArrays(gl.LINE_STRIP, Numfill, Numframe);
+}
 
+function drawBox(mv, pos, color) {
+  mv = mult(mv, translate(pos.x * 2 - 5, pos.y * 2 - 19, pos.z * 2 - 5));
   // Half transparent glass container, only draw inside
   gl.uniform4fv(colorLoc, color);
   gl.uniformMatrix4fv(mvLoc, false, flatten(mv));
   gl.drawArrays(gl.TRIANGLES, 0, Numfill);
-
-  //mv = mult(mv, scalem(10 / boxSize, 10 / boxSize, 10 / boxSize));
-  return mv;
 }
 
 function render() {
@@ -331,7 +354,22 @@ function render() {
 
   mv = mult(mv, scalem(boxSize / 10, boxSize / 10, boxSize / 10));
 
+  // update the postitions
   currTrisis = updateTrisis(currTrisis);
+
+  drawFrame(mv, currTrisis.center, colors[currTrisis.color]);
+  drawFrame(mv, currTrisis.other, colors[currTrisis.color]);
+  drawFrame(mv, currTrisis.third, colors[currTrisis.color]);
+
+  grid.forEach((_, y) =>
+    _.forEach((_, x) =>
+      _.forEach((curr, z) => {
+        if (curr !== 0) {
+          drawFrame(mv, {x, y, z}, colors[curr]);
+        }
+      })
+    )
+  );
 
   drawBox(mv, currTrisis.center, colors[currTrisis.color]);
   drawBox(mv, currTrisis.other, colors[currTrisis.color]);
