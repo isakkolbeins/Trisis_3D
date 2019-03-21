@@ -40,8 +40,12 @@ var vertices = points.boxFill.concat(points.boxFrame);
 
 var keys = {};
 var currTrisis;
+var nextTrisis;
 var updateTimer = true;
 var dropTimer = true;
+var isPaused = true;
+var started = false;
+var dropspeed = 1000;
 
 var grid = Array.from(Array(20), _ =>
   Array.from(Array(6), _ => Array(6).fill(0))
@@ -93,7 +97,8 @@ window.onload = function init() {
   var proj = perspective(90.0, 1.0, 0.1, 100.0);
   gl.uniformMatrix4fv(proLoc, false, flatten(proj));
 
-  currTrisis = newTrisis();
+  // Create first element
+  nextTrisis = newTrisis();
 
   // Mouse handlers
   canvas.addEventListener('mousedown', function(e) {
@@ -140,6 +145,12 @@ window.onload = function init() {
   window.addEventListener('keydown', function(e) {
     e = e || event;
     keys[e.keyCode] = e.type == 'keydown';
+    if (keys[13] && !started) {
+      startGame();
+    } // Enter - start game
+    if (keys[80]) {
+      isPaused = !isPaused;
+    } // p Key - toggle pause
   });
   window.addEventListener('keyup', function(e) {
     e = e || event;
@@ -158,7 +169,7 @@ window.onload = function init() {
   // prettier-ignore
   setInterval(function() { updateTimer = true; }, 100);
   // prettier-ignore
-  setInterval(function() { dropTimer = true;   }, 1000);
+  setInterval(function() { dropTimer = true;   }, dropspeed);
 
   render();
 };
@@ -184,12 +195,22 @@ function sidemovement(t) {
   return t;
 }
 
+function startGame() {
+  started = true;
+  isPaused = false;
+  setOfNextTrisis();
+}
+
+function setOfNextTrisis() {
+  currTrisis = nextTrisis;
+  nextTrisis = newTrisis();
+  return currTrisis;
+}
+
+// prettier-ignore
 function downmovement(t) {
-  // Space
-  if (keys[32]) {
-    t = moveTrisis(t, 'y', -1);
-  }
-  if (dropTimer) {
+  if (keys[32]) { t = moveTrisis(t, 'y', -1); }     // Space
+  if (dropTimer) { 
     t = moveTrisis(t, 'y', -1);
     dropTimer = false;
   }
@@ -200,6 +221,7 @@ function newTrisis() {
   var center, other, third;
   var randX = Math.floor(Math.random() * 2) + 2;
   var randZ = Math.floor(Math.random() * 2) + 2;
+  var color = Math.floor(Math.random() * 6) + 1;
   if (Math.random() < 0.5) {
     center = {x: randX, y: 21, z: randZ};
     other = {x: randX, y: 22, z: randZ};
@@ -210,12 +232,19 @@ function newTrisis() {
     third = {x: randX + 1, y: 20, z: randZ};
   }
 
-  return (trisis = {
-    center,
-    other,
-    third,
-    color: Math.floor(Math.random() * 6) + 1
-  });
+  var trisis = {center, other, third, color};
+
+  if (Math.random() > 0.5) {
+    rotateTrisis(trisis, ['x', 'y']);
+  }
+  if (Math.random() > 0.5) {
+    rotateTrisis(trisis, ['z', 'y']);
+  }
+  if (Math.random() > 0.5) {
+    rotateTrisis(trisis, ['x', 'z']);
+  }
+
+  return trisis;
 }
 
 function moveTrisis(t, axis, num) {
@@ -307,7 +336,9 @@ function updateTrisis(curr) {
     next = objClone(curr);
   }
 
-  next = downmovement(next);
+  if (!isPaused) {
+    next = downmovement(next);
+  }
 
   if (downCollide(next)) {
     if (curr.center.y > 19 || curr.other.y > 19 || curr.third.y > 19) {
@@ -318,8 +349,7 @@ function updateTrisis(curr) {
     grid[curr.other.y][curr.other.x][curr.other.z] = curr.color;
     grid[curr.third.y][curr.third.x][curr.third.z] = curr.color;
     // ---- Add score
-
-    next = newTrisis();
+    next = setOfNextTrisis();
   }
   return next;
 }
@@ -355,11 +385,19 @@ function render() {
   mv = mult(mv, scalem(boxSize / 10, boxSize / 10, boxSize / 10));
 
   // update the postitions
-  currTrisis = updateTrisis(currTrisis);
+  if (!isPaused) {
+    currTrisis = updateTrisis(currTrisis);
+  }
 
-  drawFrame(mv, currTrisis.center, colors[currTrisis.color]);
-  drawFrame(mv, currTrisis.other, colors[currTrisis.color]);
-  drawFrame(mv, currTrisis.third, colors[currTrisis.color]);
+  if (started) {
+    drawFrame(mv, currTrisis.center, colors[currTrisis.color]);
+    drawFrame(mv, currTrisis.other, colors[currTrisis.color]);
+    drawFrame(mv, currTrisis.third, colors[currTrisis.color]);
+  }
+
+  drawFrame(mv, nextTrisis.center, colors[nextTrisis.color]);
+  drawFrame(mv, nextTrisis.other, colors[nextTrisis.color]);
+  drawFrame(mv, nextTrisis.third, colors[nextTrisis.color]);
 
   grid.forEach((_, y) =>
     _.forEach((_, x) =>
@@ -371,9 +409,11 @@ function render() {
     )
   );
 
-  drawBox(mv, currTrisis.center, colors[currTrisis.color]);
-  drawBox(mv, currTrisis.other, colors[currTrisis.color]);
-  drawBox(mv, currTrisis.third, colors[currTrisis.color]);
+  if (started) {
+    drawBox(mv, currTrisis.center, colors[currTrisis.color]);
+    drawBox(mv, currTrisis.other, colors[currTrisis.color]);
+    drawBox(mv, currTrisis.third, colors[currTrisis.color]);
+  }
 
   grid.forEach((_, y) =>
     _.forEach((_, x) =>
