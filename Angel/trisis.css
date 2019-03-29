@@ -1,0 +1,179 @@
+html {
+    background-color: black;
+}
+
+body {
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 1200px;
+    color: white;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.score {
+    font-size: 1.5rem;
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px #00ccff solid;
+    border-radius: 10px;
+}
+
+.controls {
+    border: 2px #00ccff solid;
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 2rem;
+    text-align: center;
+    width: 40%;
+    font-size: 1.2rem;
+}
+
+.controls div {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.controls div p {
+    width: 50%;
+    margin: 0.5rem;
+}
+
+.controls div p:first-child {
+   font-weight: bold;
+}
+
+.currScore {
+    width: 3rem;
+    text-align: center;
+}
+
+canvas {
+    height: 80vh;
+}
+
+.score_wrapper {
+    width: 60%;
+    display: flex;
+    justify-content: center;
+}
+
+.trisis_Heading {
+    width: 100%;
+    margin: 1rem;
+    text-align: center;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 4em;
+    display: flex;
+    justify-content: center;
+}
+
+.trisis_Heading span {
+    margin: 0.5rem;
+}
+
+.trisis_Heading :nth-child(1) {
+    color:  #ff0000;
+    text-shadow: 
+    0.5px -0.5px 0.7px #990000, 
+    1px -1px 0.7px #990000, 
+    1.5px -1.5px 0.7px #990000, 
+    2px -2px 0.7px #990000, 
+    2.5px -2.5px 0.7px #990000, 
+    3px -3px 0.7px #990000, 
+    3.5px -3.5px 0.7px #990000, 
+    4px -4px 0.7px #990000, 
+    4.5px -4.5px 0.7px #990000, 
+    5px -5px 0.7px #990000, 
+    5.5px -5.5px 0.7px #990000, 
+    6px -6px 0.7px #990000;
+}
+.trisis_Heading :nth-child(2) {
+    color:  #00ccff;
+    text-shadow: 
+    0.5px -0.5px 0.7px #007a99, 
+    1px -1px 0.7px #007a99, 
+    1.5px -1.5px 0.7px #007a99, 
+    2px -2px 0.7px #007a99, 
+    2.5px -2.5px 0.7px #007a99, 
+    3px -3px 0.7px #007a99, 
+    3.5px -3.5px 0.7px #007a99, 
+    4px -4px 0.7px #007a99, 
+    4.5px -4.5px 0.7px #007a99, 
+    5px -5px 0.7px #007a99, 
+    5.5px -5.5px 0.7px #007a99, 
+    6px -6px 0.7px #007a99;
+}
+.trisis_Heading :nth-child(3) {
+    color:  #ffff00;
+    text-shadow: 
+    0.5px -0.5px 0.7px #999900, 
+    1px -1px 0.7px #999900, 
+    1.5px -1.5px 0.7px #999900, 
+    2px -2px 0.7px #999900, 
+    2.5px -2.5px 0.7px #999900, 
+    3px -3px 0.7px #999900, 
+    3.5px -3.5px 0.7px #999900, 
+    4px -4px 0.7px #999900, 
+    4.5px -4.5px 0.7px #999900, 
+    5px -5px 0.7px #999900, 
+    5.5px -5.5px 0.7px #999900, 
+    6px -6px 0.7px #999900;
+}
+.trisis_Heading :nth-child(4) {
+    color:   #33cc33;
+    text-shadow: 
+    0.5px -0.5px 0.7px #1f7a1f, 
+    1px -1px 0.7px #1f7a1f, 
+    1.5px -1.5px 0.7px #1f7a1f, 
+    2px -2px 0.7px #1f7a1f, 
+    2.5px -2.5px 0.7px #1f7a1f, 
+    3px -3px 0.7px #1f7a1f, 
+    3.5px -3.5px 0.7px #1f7a1f, 
+    4px -4px 0.7px #1f7a1f, 
+    4.5px -4.5px 0.7px #1f7a1f, 
+    5px -5px 0.7px #1f7a1f, 
+    5.5px -5.5px 0.7px #1f7a1f, 
+    6px -6px 0.7px #1f7a1f;
+}
+.trisis_Heading :nth-child(5) {
+    color:   #ff00ff;
+    text-shadow: 
+    0.5px -0.5px 0.7px #990099, 
+    1px -1px 0.7px #990099, 
+    1.5px -1.5px 0.7px #990099, 
+    2px -2px 0.7px #990099, 
+    2.5px -2.5px 0.7px #990099, 
+    3px -3px 0.7px #990099, 
+    3.5px -3.5px 0.7px #990099, 
+    4px -4px 0.7px #990099, 
+    4.5px -4.5px 0.7px #990099, 
+    5px -5px 0.7px #990099, 
+    5.5px -5.5px 0.7px #990099, 
+    6px -6px 0.7px #990099;
+}
+.trisis_Heading :nth-child(6) {
+    color:   #ff9900;
+    text-shadow: 
+    0.5px -0.5px 0.7px #995c00, 
+    1px -1px 0.7px #995c00, 
+    1.5px -1.5px 0.7px #995c00, 
+    2px -2px 0.7px #995c00, 
+    2.5px -2.5px 0.7px #995c00, 
+    3px -3px 0.7px #995c00, 
+    3.5px -3.5px 0.7px #995c00, 
+    4px -4px 0.7px #995c00, 
+    4.5px -4.5px 0.7px #995c00, 
+    5px -5px 0.7px #995c00, 
+    5.5px -5.5px 0.7px #995c00, 
+    6px -6px 0.7px #995c00;
+}

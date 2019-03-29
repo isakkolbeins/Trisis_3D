@@ -48,15 +48,13 @@ var started = false;
 var dropspeed = 1000;
 var bombBlocks;
 
-var grid = Array.from(Array(20), _ =>
-  Array.from(Array(6), _ => Array(6).fill(0))
-); // [20[6[6]]] -- [y[z[x]]]
+var grid = Array.from(Array(20), _ => Array.from(Array(6), _ => Array(6).fill(0))); // [20[6[6]]] -- [y[z[x]]]
 
 // Grid ----- test okok
-grid[0].forEach((_, x) => _.forEach((_, z) => (grid[0][x][z] = 5)));
+/* grid[0].forEach((_, x) => _.forEach((_, z) => (grid[0][x][z] = 5)));
 grid[0].forEach((_, x) => _.forEach((_, z) => (grid[1][x][z] = 5)));
 grid[0][3][3] = 0;
-grid[1][3][3] = 0;
+grid[1][3][3] = 0; */
 
 var colors = [
   vec4(0.8, 0.0, 0.0, 0.5),
@@ -112,7 +110,7 @@ window.onload = function init() {
     movement = true;
     origX = e.offsetX;
     origY = e.offsetY;
-    e.preventDefault(); // Disable drag and drop
+    //e.preventDefault(); // Disable drag and drop
   });
 
   canvas.addEventListener('touchstart', function(e) {
@@ -158,7 +156,11 @@ window.onload = function init() {
     if (keys[80]) {
       isPaused = !isPaused;
     } // p Key - toggle pause
+    if (document.activeElement === canvas){
+      e.preventDefault();
+    }
   });
+
   window.addEventListener('keyup', function(e) {
     e = e || event;
     keys[e.keyCode] = e.type == 'keydown';
@@ -166,17 +168,18 @@ window.onload = function init() {
 
   // Scroll wheel handler
   window.addEventListener('mousewheel', function(e) {
-    if (e.wheelDelta > 0.0) {
-      zView += 0.2;
-    } else {
-      zView -= 0.2;
+    if (document.activeElement === canvas){
+      if (e.wheelDelta > 0.0) {
+        zView += 0.2;
+      } else {
+        zView -= 0.2;
+      }
+      e.preventDefault();
     }
   });
 
-  // prettier-ignore
   setInterval(function() { updateTimer = true; }, 100);
-  // prettier-ignore
-  setInterval(function() { dropTimer = true;   }, dropspeed);
+  setInterval(function() { dropTimer = true; }, dropspeed);
 
   render();
 };
@@ -185,7 +188,6 @@ function objClone(src) {
   return JSON.parse(JSON.stringify(src));
 }
 
-// prettier-ignore
 function sidemovement(t) {
   if (keys[37]) { moveTrisis(t, 'x', -1); }     // Left arrow   - move -X direction
   if (keys[38]) { moveTrisis(t, 'z', -1); }     // Up arrow     - move -Z direction
@@ -203,9 +205,17 @@ function sidemovement(t) {
 }
 
 function startGame() {
+  reset();
   started = true;
   isPaused = false;
   setOfNextTrisis();
+}
+
+function reset() {
+  isPaused=true;
+  started=false;
+  document.getElementById("currScore").innerHTML = 0;
+  grid = Array.from(Array(20), _ => Array.from(Array(6), _ => Array(6).fill(0))); // [20[6[6]]] -- [y[z[x]]]
 }
 
 function setOfNextTrisis() {
@@ -328,12 +338,15 @@ function updateTrisis(curr) {
   if (downCollide(next)) {
     if (curr.center.y > 19 || curr.other.y > 19 || curr.third.y > 19) {
       // Game over -            -----
-      window.alert('Game over');
+      window.alert('Game over \n'+'Final score: '+ document.getElementById("currScore").innerHTML);
+      reset();
     }
-    grid[curr.center.y][curr.center.x][curr.center.z] = curr.color;
-    grid[curr.other.y][curr.other.x][curr.other.z] = curr.color;
-    grid[curr.third.y][curr.third.x][curr.third.z] = curr.color;
-
+    else {
+      grid[curr.center.y][curr.center.x][curr.center.z] = curr.color;
+      grid[curr.other.y][curr.other.x][curr.other.z] = curr.color;
+      grid[curr.third.y][curr.third.x][curr.third.z] = curr.color;
+    }
+      
     checkForFullPlane();
     next = setOfNextTrisis();
   }
@@ -370,7 +383,13 @@ function checkForFullPlane() {
 
   if (completed.length > 0) {
     colorBomb(completed);
+    addScore(completed.length);
   }
+}
+
+function addScore(planes) {
+  var currScore = parseInt(document.getElementById("currScore").innerHTML);
+  document.getElementById("currScore").innerHTML = currScore+planes*36;
 }
 
 function drawFrame(mv, pos) {
